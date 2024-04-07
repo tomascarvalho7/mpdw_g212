@@ -1,4 +1,5 @@
 import os
+from modules.EmbeddingUtils import EmbeddingUtils
 from opensearchpy import OpenSearch
 
 class Search:
@@ -8,6 +9,7 @@ class Search:
         self.user = os.getenv('USER')
         self.password = os.getenv('PASS')
         self.index_name = self.user
+        self.utils = EmbeddingUtils()
         self.client = OpenSearch(
             hosts=[{'host': self.host, 'port': self.port}],
             http_compress=True,  # enables gzip compression for request bodies
@@ -21,17 +23,22 @@ class Search:
         return
 
     def SearchTitleTxt(self, query):
-        query = self._BuildDefaultTextQuery(query, ['displayName'])
+        querybm25 = self._BuildDefaultTextQuery(query, ['title'])
+
+        return self.client.search(
+            body = querybm25,
+            index = self.index_name
+        )
+
+    def SearchTitleEmbeddings(self, query):
+        query = self._BuildDefaultEmbeddingsQuery(query, 'title_embedding')
 
         return self.client.search(
             body = query,
             index = self.index_name
         )
 
-    def SearchTitleEmbeddings(self):
-        return
-
-    def SearchDescriptionTxt(self):
+    def SearchDescriptionTxt(self, query):
         query = self._BuildDefaultTextQuery(query, ['description'])
 
         return self.client.search(
@@ -39,8 +46,13 @@ class Search:
             index = self.index_name
         )
 
-    def SearchDescriptionEmbeddings(self):
-        return
+    def SearchDescriptionEmbeddings(self, query):
+        query = self._BuildDefaultEmbeddingsQuery(query, 'description_embedding')
+
+        return self.client.search(
+            body = query,
+            index = self.index_name
+        )
     
     def SearchRecipeTime(self, time, range):
         query = {
@@ -84,29 +96,24 @@ class Search:
             '_source': ['doc_id'],
             'query': {
                     'multi_match': {
-                    'query': query,
-                    'fields': fields
+                        'query': query,
+                        'fields': fields
                     }
                 }
             }
     
-    def _BuildDefaultEmbeddingsQuery(self, query, fields):
-        query_emb = encode(query)
+    def _BuildDefaultEmbeddingsQuery(self, query, field):
+        query_emb = self.utils.encode(query)
 
-        query_denc = {
+        return {
         'size': 5,
         '_source': ['doc_id'],
         "query": {
                 "knn": {
-                "title_embedding": {
+                field: {
                     "vector": query_emb[0].numpy(),
                     "k": 2
                 }
                 }
             }
         }
-
-        return self.client.search(
-            index = self.index_name, 
-            body = query_denc
-        )
