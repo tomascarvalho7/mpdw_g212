@@ -1,6 +1,7 @@
 import os
 from modules.EmbeddingUtils import EmbeddingUtils
 from opensearchpy import OpenSearch
+from modules.SearchBuilder import SearchBuilder
 
 class Search:
     def __init__(self):
@@ -22,24 +23,56 @@ class Search:
         )
         return
 
-    def SearchTitleTxt(self, query):
-        querybm25 = self._BuildDefaultTextQuery(query, ['title'])
+    def SearchTitleAndDescriptionTxt(self, query):
+        searchBuilder = SearchBuilder()
+        searchBuilder.setSourceAsIdAndContent()
+        searchBuilder.setResultLength(5)
+        return searchBuilder.Search(query)
+    
+    def SearchRecipeTime(self, time, range):
+        searchBuilder = SearchBuilder()
+        searchBuilder.setSourceAsIdAndContent()
+        searchBuilder.setResultLength(5)
+        searchBuilder.setTimeFrame(time, range)
+        return searchBuilder.Search('')
+    
+    def SearchRecipeNameTime(self, time, range, ingredient):
+        searchBuilder = SearchBuilder()
+        searchBuilder.setSourceAsIdAndContent()
+        searchBuilder.setResultLength(5)
+        searchBuilder.setTimeFrame(time, range)
+        return searchBuilder.Search(ingredient)
 
-        return self.client.search(
-            body = querybm25,
-            index = self.index_name
-        )
+    def SearchRecipeIngredients(self, ingredients):
+        searchBuilder = SearchBuilder()
+        searchBuilder.setSourceAsIdAndContent()
+        searchBuilder.setResultLength(5)
+        searchBuilder.setIngredients(ingredients)
+        return searchBuilder.Search('')
+    
+    def SearchRecipeExcludeIngredients(self, ingredients):
+        searchBuilder = SearchBuilder()
+        searchBuilder.setSourceAsIdAndContent()
+        searchBuilder.setResultLength(5)
+        searchBuilder.excludeIngredients(ingredients)
+        return searchBuilder.Search('')
+
+    def SearchRecipeDifficulty(self, difficulty):
+        searchBuilder = SearchBuilder()
+        searchBuilder.setSourceAsIdAndContent()
+        searchBuilder.setResultLength(5)
+        searchBuilder.setDifficulty(difficulty)
+        return searchBuilder.Search('')
+    
+    def SearchRecipeNameDifficulty(self, difficulty, name):
+        searchBuilder = SearchBuilder()
+        searchBuilder.setSourceAsIdAndContent()
+        searchBuilder.setResultLength(5)
+        searchBuilder.setDifficulty(difficulty)
+        return searchBuilder.Search(name)
 
     def SearchTitleEmbeddings(self, query):
         query = self._BuildDefaultEmbeddingsQuery(query, 'title_embedding')
-
-        return self.client.search(
-            body = query,
-            index = self.index_name
-        )
-
-    def SearchDescriptionTxt(self, query):
-        query = self._BuildDefaultTextQuery(query, ['description'])
 
         return self.client.search(
             body = query,
@@ -53,67 +86,3 @@ class Search:
             body = query,
             index = self.index_name
         )
-    
-    def SearchRecipeTime(self, time, range):
-        query = {
-            "query": {
-                "range": {
-                    "age": {
-                        "gte": time - range,
-                        "lte": time + range
-                    }
-                }
-            }
-        }
-
-        return self.client.search(index=self.index_name, body=query)
-
-    def SearchRecipeIngredients(self, ingredients):
-        query = self._BuildDefaultTextQuery(ingredients, ['ingredients'])
-
-        return self.client.search(index=self.index_name, body=query)
-    
-    def SearchRecipeDifficulty(self, difficulty):
-        query = {
-            "query": {
-                "term": {
-                    "difficultyLevel": difficulty
-                }
-            }
-        }
-
-        return self.client.search(index=self.index_name, body=query)
-    
-    def SearchRecipeNutrition(self, nutrition):
-        query = self._BuildDefaultTextQuery(nutrition, ['nutrients'])
-
-        return self.client.search(index=self.index_name, body=query)
-
-    
-    def _BuildDefaultTextQuery(self, query, fields):
-        return {
-            'size': 5,
-            '_source': ['doc_id'],
-            'query': {
-                    'multi_match': {
-                        'query': query,
-                        'fields': fields
-                    }
-                }
-            }
-    
-    def _BuildDefaultEmbeddingsQuery(self, query, field):
-        query_emb = self.utils.encode(query)
-
-        return {
-        'size': 5,
-        '_source': ['doc_id'],
-        "query": {
-                "knn": {
-                field: {
-                    "vector": query_emb[0].numpy(),
-                    "k": 2
-                }
-                }
-            }
-        }

@@ -62,7 +62,7 @@ class SearchBuilder:
                 }
             }
         }
-
+        
         if 'bool' not in self.queryBuilder['query']:
             self.queryBuilder['query']['bool'] = {}
         if 'must' not in self.queryBuilder['query']['bool']:
@@ -85,7 +85,6 @@ class SearchBuilder:
         if 'must' not in self.queryBuilder['query']['bool']:
             self.queryBuilder['query']['bool']['must'] = []
 
-
         self.queryBuilder['query']['bool']['must'].append(tagObj)
 
     def excludeIngredients(self, ingredients):
@@ -103,7 +102,6 @@ class SearchBuilder:
         if 'must_not' not in self.queryBuilder['query']['bool']:
             self.queryBuilder['query']['bool']['must_not'] = []
 
-
         self.queryBuilder['query']['bool']['must_not'].append(tagObj)
 
     def setOptionalTags(self, tags):
@@ -119,6 +117,20 @@ class SearchBuilder:
             self.queryBuilder['query']['bool']['should'] = []
 
         self.queryBuilder['query']['bool']['should'].append(tagObj)
+
+    def setDifficulty(self, difficulty):
+        tagObj = {
+            'match': {
+                'difficultyLevel': difficulty
+            }
+        }
+
+        if 'bool' not in self.queryBuilder['query']:
+            self.queryBuilder['query']['bool'] = {}
+        if 'must' not in self.queryBuilder['query']['bool']:
+            self.queryBuilder['query']['bool']['must'] = []
+
+        self.queryBuilder['query']['bool']['must'].append(tagObj)
 
     def Search(self, qtext):
         

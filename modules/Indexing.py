@@ -92,11 +92,6 @@ class Indexing:
                 "difficultyLevel":{
                     "type": "keyword"
                 },
-                "nutrients": {
-                    "type":"text",
-                    "analyzer":"standard",
-                    "similarity":"BM25"
-                },
                 "contents":{
                     "type":"text",
                     "analyzer":"standard",
@@ -136,10 +131,6 @@ class Indexing:
                 if (ingredient["ingredient"]):
                     ingredients += ingredient["ingredient"] + ' '  
 
-            if (doc_info['nutrition']):
-                if (doc_info['nutrition']['nutrients']):
-                    nutrients = "" + str(doc_info['nutrition']['nutrients'])
-            
             # create recipe tags
             tags = []
 
@@ -160,7 +151,6 @@ class Indexing:
                 'description': doc_info['description'],
                 'time': doc_info['totalTimeMinutes'],
                 'ingredients': ingredients,
-                'nutrients': nutrients,
                 'contents': str(doc_info)
             }
             # if time is filled add to obj
