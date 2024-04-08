@@ -1,4 +1,5 @@
 import os
+from modules.EmbeddingUtils import EmbeddingUtils
 from opensearchpy import OpenSearch
 
 class SearchBuilder:
@@ -131,6 +132,48 @@ class SearchBuilder:
             self.queryBuilder['query']['bool']['must'] = []
 
         self.queryBuilder['query']['bool']['must'].append(tagObj)
+
+    def SearchByTitleEmbeddings(self, query):
+        query_emb = EmbeddingUtils().encode(query)
+
+        if 'bool' not in self.queryBuilder['query']:
+            self.queryBuilder['query']['bool'] = {}
+        if 'should' not in self.queryBuilder['query']['bool']:
+            self.queryBuilder['query']['bool']['should'] = []
+
+        knnObj = {
+                "knn": {
+                    "title_embedding": {
+                        "vector": query_emb[0].numpy(),
+                        "k": 2
+                    }
+                }
+        }
+
+        self.queryBuilder['query']['bool']['should'].append(knnObj)
+
+        return self.client.search(index=self.index_name, body=self.queryBuilder)
+    
+    def SearchByDescriptionEmbeddings(self, query):
+        query_emb = EmbeddingUtils().encode(query)
+
+        if 'bool' not in self.queryBuilder['query']:
+            self.queryBuilder['query']['bool'] = {}
+        if 'should' not in self.queryBuilder['query']['bool']:
+            self.queryBuilder['query']['bool']['should'] = []
+
+        knnObj = {
+                "knn": {
+                    "description_embedding": {
+                        "vector": query_emb[0].numpy(),
+                        "k": 2
+                    }
+                }
+        }
+
+        self.queryBuilder['query']['bool']['should'].append(knnObj)
+
+        return self.client.search(index=self.index_name, body=self.queryBuilder)
 
     def Search(self, qtext):
         
