@@ -162,7 +162,7 @@ class Indexing:
 
             resp = self.client.index(index=self.index_name, id=doc_idx, body=obj)
 
-    def getTitlesAndDescriptions(self):
+    def __getTitlesAndDescriptions(self):
         with open('receitas.json', encoding='utf-8') as f:
             data = json.loads(f.read())
 
@@ -172,7 +172,7 @@ class Indexing:
             if (doc_info['description'] != None):
                 self.descriptions.append(doc_info['description'])
 
-    def encodeEmbeddings(self):
+    def __encodeEmbeddings(self):
         return self.utils.encode(self.titles), self.utils.encode(self.descriptions)
     
     def calculateAndStoreEmbeddings(self):
@@ -181,8 +181,8 @@ class Indexing:
             self.titles_embeddings = titles_emb.tolist()
             self.descriptions_embeddings = description_emb.tolist()
         else:
-            self.getTitlesAndDescriptions()
-            (titles_emb, description_emb) = self.encodeEmbeddings()
+            self.__getTitlesAndDescriptions()
+            (titles_emb, description_emb) = self.__encodeEmbeddings()
             self.utils.storeEmbeddings(titles_emb, description_emb)
             self.titles_embeddings = titles_emb.tolist()
             self.descriptions_embeddings = description_emb.tolist()

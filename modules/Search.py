@@ -50,12 +50,12 @@ class Search:
         searchBuilder.setIngredients(ingredients)
         return searchBuilder.Search('')
     
-    def SearchRecipeExcludeIngredients(self, ingredients):
+    def SearchRecipeExcludeIngredients(self, ingredients, name):
         searchBuilder = SearchBuilder()
         searchBuilder.setSourceAsIdAndContent()
         searchBuilder.setResultLength(5)
         searchBuilder.excludeIngredients(ingredients)
-        return searchBuilder.Search('')
+        return searchBuilder.Search(name)
 
     def SearchRecipeDifficulty(self, difficulty):
         searchBuilder = SearchBuilder()
@@ -72,17 +72,9 @@ class Search:
         return searchBuilder.Search(name)
 
     def SearchTitleEmbeddings(self, query):
-        query = self._BuildDefaultEmbeddingsQuery(query, 'title_embedding')
-
-        return self.client.search(
-            body = query,
-            index = self.index_name
-        )
+        searchBuilder = SearchBuilder()
+        return searchBuilder.SearchByTitleEmbeddings(query)
 
     def SearchDescriptionEmbeddings(self, query):
-        query = self._BuildDefaultEmbeddingsQuery(query, 'description_embedding')
-
-        return self.client.search(
-            body = query,
-            index = self.index_name
-        )
+        searchBuilder = SearchBuilder()
+        return searchBuilder.SearchByDescriptionEmbeddings(query)
