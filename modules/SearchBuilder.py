@@ -2,6 +2,28 @@ import os
 from modules.EmbeddingUtils import EmbeddingUtils
 from opensearchpy import OpenSearch
 
+# Search Builder API is meant to be used as a tool to easily & in a
+# iterative manner build simple or complex search queries
+#
+# Motivation: This avoids a repetitive and not user friendly API between the user and the open search DB
+#
+# How to:
+# - Change '_source':
+#       - setSourceAsId() -> '_source': ['doc_id']
+#       - setSourceAsIdAndContent() -> '_source': ['doc_id', 'content']
+# - Change number of query results with: 
+#       - setResultLength(int number)
+# - Change query parameters: (can be called any number of times)
+#       - setMandatoryTags(string[] tags)
+#       - setOptionalTags(string[] tags)
+#       - setTimeFrame(int time, int margin)
+#       - setIngredients(string ingredients)
+#       - excludeIngredients(string ingredients)
+#       - setDifficulty(int difficulty)
+# - Execute search:
+#       - SearchByTitleEmbeddings(string qtext) -> uses the knn vectors of the titles to query recipes
+#       - SearchByDescriptionEmbeddings(string qtext) -> uses the knn vectors of the descriptions to query recipes
+#       - Search(string qtext) -> uses multimatch to query recipes
 class SearchBuilder:
     def __init__(self):
         self.host = 'api.novasearch.org'
@@ -35,9 +57,6 @@ class SearchBuilder:
 
     def setResultLength(self, length):
         self.queryBuilder['size'] = length
-
-    def setEmbeddings(self, query):
-        return null;
 
     def setMandatoryTags(self, tags):
         tagObj = {
