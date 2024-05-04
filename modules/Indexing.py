@@ -2,6 +2,7 @@ import json
 import os
 from opensearchpy import OpenSearch
 from modules.EmbeddingUtils import EmbeddingUtils
+from IPython.display import Image
 
 class Indexing:
     def __init__(self):
@@ -14,7 +15,6 @@ class Indexing:
         self.descriptions = []
         self.titles_embeddings = []
         self.descriptions_embeddings = []
-        self.utils = EmbeddingUtils()
         self.client = OpenSearch(
             hosts=[{'host': self.host, 'port': self.port}],
             http_compress=True,  # enables gzip compression for request bodies
@@ -25,6 +25,8 @@ class Indexing:
             ssl_assert_hostname=False,
             ssl_show_warn=False
         )
+        self.utils = EmbeddingUtils()
+        
 
     def createOpenSearchMappings(self):
         index_body = {
@@ -81,6 +83,21 @@ class Indexing:
                         }
                     }
                 },
+                "clip_embeddings": [
+                    {
+                        "type":"knn_vector",
+                        "dimension": 768,
+                        "method": {
+                            "name": "hnsw",
+                            "space_type": "innerproduct",
+                            "engine": "faiss",
+                            "parameters": {
+                                "ef_construction": 256,
+                                "m": 48
+                            }
+                        }
+                    }
+                ],
                 "ingredients":{
                     "type":"text",
                     "analyzer":"standard",
@@ -117,6 +134,9 @@ class Indexing:
         }
         self.client.indices.put_settings(index = self.index_name, body = index_settings)
 
+    def __imageToEmbedding(self, image):
+        return EmbeddingUtils.encodeImage(Image(image.url))
+
     def readAndStoreRecipesFromFile(self, fileName):
         with open(fileName, encoding='utf-8') as f:
             data = json.loads(f.read())
@@ -143,11 +163,17 @@ class Indexing:
             if doc_info['cuisines'] is not None:
                 tags.extend(doc_info['cuisines'])
 
+            images = doc_info['images']
+            clip_embeddings
+            if (images.Lenght > 0): clip_embeddings = map(self.__imageToEmbedding, images)
+            else: clip_embeddings = [EmbeddingUtils.encodeCaption(doc_info['displayName'])]
+
             obj = {
                 'doc_id': doc_idx,
                 'tags': tags,
                 'title': doc_info['displayName'],
                 'title_embedding': self.titles_embeddings[doc_idx],
+                'clip_embeddings': clip_embeddings,
                 'description': doc_info['description'],
                 'time': doc_info['totalTimeMinutes'],
                 'ingredients': ingredients,

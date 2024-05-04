@@ -3,11 +3,19 @@ from transformers import AutoTokenizer, AutoModel
 import torch
 import torch.nn.functional as F
 import pickle
+from PIL import Image
+import requests
+import torch
+from transformers import CLIPProcessor, CLIPModel
+
 
 class EmbeddingUtils:
     def __init__(self):
         self.tokenizer = AutoTokenizer.from_pretrained("sentence-transformers/msmarco-distilbert-base-v2")
         self.model = AutoModel.from_pretrained("sentence-transformers/msmarco-distilbert-base-v2")
+        self.device = "cuda:0" if torch.cuda.is_available() else "cpu"
+        self.clipProcessor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
+        self.clipModel = CLIPModel.from_pretrained("openai/clip-vit-base-patch32").to(device)
 
     def mean_pooling(self, model_output, attention_mask):
         token_embeddings = model_output.last_hidden_state #First element of model_output contains all token embeddings
@@ -29,6 +37,20 @@ class EmbeddingUtils:
         embeddings = F.normalize(embeddings, p=2, dim=1)
         
         return embeddings
+
+    def encodeCaption(self, caption):
+        input_encoding = self.clipProcessor(text=[caption], 
+                        return_tensors="pt", 
+                        padding=True).to(self.device)
+        text_embeddings = self.clipModel.get_text_features(**input_encoding)
+        text_embeddings = text_embeddings / text_embeddings.norm(dim=-1, keepdim=True)
+        return text_embeddings
+    
+    def encodeImage(self, image):
+        input_img = self.clipProcessor(images=image, return_tensors="pt").to(self.device)
+        image_embeddings = self.clipModel.get_image_features(**input_img)
+        image_embeddings = image_embeddings / image_embeddings.norm(dim=-1, keepdim=True)
+        return image_embeddings
     
     # store embedding vectors
     def storeEmbeddings(self, titles, description):
