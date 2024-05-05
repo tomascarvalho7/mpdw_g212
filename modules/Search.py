@@ -78,3 +78,11 @@ class Search:
     def SearchDescriptionEmbeddings(self, query):
         searchBuilder = SearchBuilder()
         return searchBuilder.SearchByDescriptionEmbeddings(query)
+    
+    def SearchByImageEmbeddings(self, query):
+        searchBuilder = SearchBuilder()
+        return searchBuilder.SearchByImageEmbeddings(query)
+
+    def SearchByCaptionEmbeddings(self, query):
+        searchBuilder = SearchBuilder()
+        return searchBuilder.SearchByCaptionEmbeddings(query)
