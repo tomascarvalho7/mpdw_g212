@@ -3,6 +3,7 @@ import os
 from opensearchpy import OpenSearch
 from modules.EmbeddingUtils import EmbeddingUtils
 from IPython.display import Image
+import pprint as pp
 
 class Indexing:
     def __init__(self):
@@ -83,8 +84,7 @@ class Indexing:
                         }
                     }
                 },
-                "clip_embeddings": [
-                    {
+                "clip_embeddings": {
                         "type":"knn_vector",
                         "dimension": 768,
                         "method": {
@@ -96,8 +96,7 @@ class Indexing:
                                 "m": 48
                             }
                         }
-                    }
-                ],
+                    },
                 "ingredients":{
                     "type":"text",
                     "analyzer":"standard",
@@ -134,9 +133,6 @@ class Indexing:
         }
         self.client.indices.put_settings(index = self.index_name, body = index_settings)
 
-    def __imageToEmbedding(self, image):
-        return EmbeddingUtils.encodeImage(Image(image.url))
-
     def readAndStoreRecipesFromFile(self, fileName):
         with open(fileName, encoding='utf-8') as f:
             data = json.loads(f.read())
@@ -164,9 +160,9 @@ class Indexing:
                 tags.extend(doc_info['cuisines'])
 
             images = doc_info['images']
-            clip_embeddings
-            if (images.Lenght > 0): clip_embeddings = map(self.__imageToEmbedding, images)
-            else: clip_embeddings = [EmbeddingUtils.encodeCaption(doc_info['displayName'])]
+            #if (len(images) > 0): clip_embeddings = map(lambda img: self.utils.encodeImage(Image(img.url)), images)
+            #else: clip_embeddings = []
+            clip_embeddings = self.utils.encodeCaption(doc_info['displayName'])[0].tolist();
 
             obj = {
                 'doc_id': doc_idx,
@@ -179,6 +175,7 @@ class Indexing:
                 'ingredients': ingredients,
                 'contents': str(doc_info)
             }
+            pp.pprint(obj);
             # if time is filled add to obj
             if (doc_info['totalTimeMinutes']): obj['time'] = doc_info['totalTimeMinutes']
             # if difficultyLevel is filled add to obj
