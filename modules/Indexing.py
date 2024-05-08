@@ -86,7 +86,7 @@ class Indexing:
                 },
                 "clip_embeddings": {
                         "type":"knn_vector",
-                        "dimension": 768,
+                        "dimension": 512,
                         "method": {
                             "name": "hnsw",
                             "space_type": "innerproduct",
@@ -96,11 +96,25 @@ class Indexing:
                                 "m": 48
                             }
                         }
-                    },
+                },
                 "ingredients":{
                     "type":"text",
                     "analyzer":"standard",
                     "similarity":"BM25"
+                },
+                "instructions":{
+                    "type":"nested",
+                    "properties": {
+                        "stepNumber": {
+                            "type": "integer"
+                        },
+                        "stepText": {
+                            "type": "text",
+                            "analyzer": "standard",
+                            "similarity": "BM25"
+                        }
+                    },
+                    "enabled": True
                 },
                 "time":{
                 "type":"integer"  
@@ -146,7 +160,15 @@ class Indexing:
             for ingredient in doc_info['ingredients']:
                 if (ingredient["ingredient"]):
                     ingredients += ingredient["ingredient"] + ' '  
-
+            
+            instructions = []
+            for instruction in doc_info['instructions']:
+                step = {
+                    "stepNumber": instruction['stepNumber'],
+                    "stepText": instruction['stepText']
+                }
+                instructions.append(step)
+            
             # create recipe tags
             tags = []
 
@@ -162,20 +184,21 @@ class Indexing:
             images = doc_info['images']
             #if (len(images) > 0): clip_embeddings = map(lambda img: self.utils.encodeImage(Image(img.url)), images)
             #else: clip_embeddings = []
-            clip_embeddings = self.utils.encodeCaption(doc_info['displayName'])[0].tolist();
+            clip_embeddings = self.utils.encodeCaption(doc_info['displayName']).detach().cpu().numpy()
 
             obj = {
                 'doc_id': doc_idx,
                 'tags': tags,
                 'title': doc_info['displayName'],
                 'title_embedding': self.titles_embeddings[doc_idx],
-                'clip_embeddings': clip_embeddings,
+                'clip_embeddings': clip_embeddings[0],
                 'description': doc_info['description'],
                 'time': doc_info['totalTimeMinutes'],
                 'ingredients': ingredients,
+                'instructions': instructions,
                 'contents': str(doc_info)
             }
-            pp.pprint(obj);
+            
             # if time is filled add to obj
             if (doc_info['totalTimeMinutes']): obj['time'] = doc_info['totalTimeMinutes']
             # if difficultyLevel is filled add to obj

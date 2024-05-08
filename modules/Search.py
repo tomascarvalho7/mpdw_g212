@@ -7,8 +7,8 @@ class Search:
     def __init__(self):
         self.host = 'api.novasearch.org'
         self.port = 443
-        self.user = os.getenv('USER')
-        self.password = os.getenv('PASS')
+        self.user = 'user212'
+        self.password = 'soO-2518'
         self.index_name = self.user
         self.utils = EmbeddingUtils()
         self.client = OpenSearch(
@@ -27,6 +27,12 @@ class Search:
         searchBuilder = SearchBuilder()
         searchBuilder.setSourceAsIdAndContent()
         searchBuilder.setResultLength(5)
+        return searchBuilder.Search(query)
+    
+    def SearchSingleTitleAndDescriptionTxtInstructions(self, query):
+        searchBuilder = SearchBuilder()
+        searchBuilder.setSourceAsIdAndInstructions()
+        searchBuilder.setResultLength(1)
         return searchBuilder.Search(query)
     
     def SearchRecipeTime(self, time, range):

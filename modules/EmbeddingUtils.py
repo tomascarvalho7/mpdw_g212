@@ -7,6 +7,7 @@ from PIL import Image
 import requests
 import torch
 from transformers import CLIPProcessor, CLIPModel
+import pprint as pp
 
 
 class EmbeddingUtils:
@@ -44,7 +45,7 @@ class EmbeddingUtils:
                         padding=True).to(self.device)
         text_embeddings = self.clipModel.get_text_features(**input_encoding)
         text_embeddings = text_embeddings / text_embeddings.norm(dim=-1, keepdim=True)
-        return text_embeddings.detach().numpy()
+        return text_embeddings
     
     def encodeImage(self, images):
         input_img = self.clipProcessor(images=images, return_tensors="pt").to(self.device)
