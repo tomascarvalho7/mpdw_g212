@@ -120,7 +120,7 @@ class Indexing:
                     "enabled": True
                 },
                 "time":{
-                "type":"integer"  
+                    "type":"integer"  
                 },
                 "difficultyLevel":{
                     "type": "keyword"

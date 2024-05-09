@@ -59,11 +59,7 @@ def send_to_planllm(conversation, url):
 
     response = requests.post(url, json=data, timeout=max_timeout)
     return response.text
-    # if response.status_code == 200:
-    #     print("POST request successful for URL:", url)
-    #     print("Response:", response.text)
-    # else:
-    #     print("POST request failed with status code:", response.status_code)
+
 
 def main():
     step = 0
@@ -84,7 +80,7 @@ def main():
 
         conversation_json = add_to_json(conversation_json, "ai", ai_response, step)
 
-        print(ai_response.strip())
+        print(ai_response.replace('"', ''))
 
         step += 1
 
