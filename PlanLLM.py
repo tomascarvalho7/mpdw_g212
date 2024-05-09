@@ -11,7 +11,7 @@ url = "https://twiz.novasearch.org/"
 
 def get_initial_user_input():
     # Ask the user for a recipe
-    user_input = input("Hello! What recipe would you like to cook today?\n")
+    user_input = input("Hello! What recipe would you like to cook today? type 'exit' to quit.\n")
     return user_input
 
 def search_Opensearch(recipeToSearch):
