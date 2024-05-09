@@ -209,7 +209,7 @@ class SearchBuilder:
         knnObj = {
                 "knn": {
                     "clip_embeddings": {
-                        "vector": query_emb[0].numpy(),
+                        "vector": query_emb[0],
                         "k": 2
                     }
                 }
@@ -219,28 +219,6 @@ class SearchBuilder:
 
         return self.client.search(index=self.index_name, body=self.queryBuilder)
     
-
-    def SearchByCaptionEmbeddings(self, query):
-        query_emb = EmbeddingUtils().encodeCaption(query)
-
-        if 'bool' not in self.queryBuilder['query']:
-            self.queryBuilder['query']['bool'] = {}
-        if 'should' not in self.queryBuilder['query']['bool']:
-            self.queryBuilder['query']['bool']['should'] = []
-
-        knnObj = {
-                "knn": {
-                    "caption_embedding": {
-                        "vector": query_emb[0].numpy(),
-                        "k": 2
-                    }
-                }
-        }
-
-        self.queryBuilder['query']['bool']['should'].append(knnObj)
-
-        return self.client.search(index=self.index_name, body=self.queryBuilder)
-
     def Search(self, qtext):
         
         if 'bool' not in self.queryBuilder['query']:

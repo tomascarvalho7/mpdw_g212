@@ -2,8 +2,9 @@ import json
 import os
 from opensearchpy import OpenSearch
 from modules.EmbeddingUtils import EmbeddingUtils
-from IPython.display import Image
+import requests
 import pprint as pp
+from PIL import Image
 
 class Indexing:
     def __init__(self):
@@ -14,8 +15,10 @@ class Indexing:
         self.index_name = self.user
         self.titles = []
         self.descriptions = []
+        self.imageGroups = []
         self.titles_embeddings = []
         self.descriptions_embeddings = []
+        self.clip_embeddings = []
         self.client = OpenSearch(
             hosts=[{'host': self.host, 'port': self.port}],
             http_compress=True,  # enables gzip compression for request bodies
@@ -181,17 +184,12 @@ class Indexing:
             if doc_info['cuisines'] is not None:
                 tags.extend(doc_info['cuisines'])
 
-            images = doc_info['images']
-            #if (len(images) > 0): clip_embeddings = map(lambda img: self.utils.encodeImage(Image(img.url)), images)
-            #else: clip_embeddings = []
-            clip_embeddings = self.utils.encodeCaption(doc_info['displayName']).detach().cpu().numpy()
-
             obj = {
                 'doc_id': doc_idx,
                 'tags': tags,
                 'title': doc_info['displayName'],
                 'title_embedding': self.titles_embeddings[doc_idx],
-                'clip_embeddings': clip_embeddings[0],
+                'clip_embeddings': self.clip_embeddings[doc_idx][0],
                 'description': doc_info['description'],
                 'time': doc_info['totalTimeMinutes'],
                 'ingredients': ingredients,
@@ -215,20 +213,32 @@ class Indexing:
         for doc in data:
             doc_info = data[doc]
             self.titles.append(doc_info['displayName'])
+            images = list(map(lambda img: Image.open(requests.get(img["url"], stream=True).raw), doc_info['images']))
+            self.imageGroups.append(images)
             if (doc_info['description'] != None):
                 self.descriptions.append(doc_info['description'])
 
     def __encodeEmbeddings(self):
-        return self.utils.encode(self.titles), self.utils.encode(self.descriptions)
+        counter = 0
+        clip_embeddings = []
+        for group in self.imageGroups:
+            if (len(group) > 0): clip_embeddings.append(self.utils.encodeImage(group))
+            else: clip_embeddings.append(self.utils.encodeCaption(self.titles[counter]))
+            counter += 1
+
+        return self.utils.encode(self.titles), self.utils.encode(self.descriptions), clip_embeddings
     
     def calculateAndStoreEmbeddings(self):
-        if os.path.exists('./embeddings/titles_embeddings.pkl') and os.path.exists('./embeddings/description_embeddings.pkl'):
-            (titles_emb, description_emb) = self.utils.readEmbeddings()
+        if os.path.exists('./embeddings/titles_embeddings.pkl') and os.path.exists('./embeddings/description_embeddings.pkl') and os.path.exists('./embeddings/clip_embeddings.pkl'):
+            (titles_emb, description_emb, clip_embeddings) = self.utils.readEmbeddings()
             self.titles_embeddings = titles_emb.tolist()
             self.descriptions_embeddings = description_emb.tolist()
+            self.clip_embeddings = clip_embeddings
         else:
             self.__getTitlesAndDescriptions()
-            (titles_emb, description_emb) = self.__encodeEmbeddings()
-            self.utils.storeEmbeddings(titles_emb, description_emb)
+            (titles_emb, description_emb, clip_embeddings) = self.__encodeEmbeddings()
+            self.utils.storeEmbeddings(titles_emb, description_emb, clip_embeddings)
             self.titles_embeddings = titles_emb.tolist()
             self.descriptions_embeddings = description_emb.tolist()
+            self.clip_embeddings = clip_embeddings
+

@@ -45,20 +45,22 @@ class EmbeddingUtils:
                         padding=True).to(self.device)
         text_embeddings = self.clipModel.get_text_features(**input_encoding)
         text_embeddings = text_embeddings / text_embeddings.norm(dim=-1, keepdim=True)
-        return text_embeddings
+        return text_embeddings.detach().cpu().numpy()
     
     def encodeImage(self, images):
         input_img = self.clipProcessor(images=images, return_tensors="pt").to(self.device)
         image_embeddings = self.clipModel.get_image_features(**input_img)
         image_embeddings = image_embeddings / image_embeddings.norm(dim=-1, keepdim=True)
-        return image_embeddings.detach().numpy()
+        return image_embeddings.detach().cpu().numpy()
     
     # store embedding vectors
-    def storeEmbeddings(self, titles, description):
+    def storeEmbeddings(self, titles, description, clip_embeddings):
         with open('./embeddings/titles_embeddings.pkl', 'wb') as f:
             pickle.dump(titles, f)
         with open('./embeddings/description_embeddings.pkl', 'wb') as f:
             pickle.dump(description, f)
+        with open('./embeddings/clip_embeddings.pkl', 'wb') as f:
+            pickle.dump(clip_embeddings, f)
 
     # read embedding vectors
     def readEmbeddings(self):
@@ -66,5 +68,7 @@ class EmbeddingUtils:
             title_embeddings = pickle.load(f)
         with open('./embeddings/description_embeddings.pkl', 'rb') as f:
             descriptions_embeddings = pickle.load(f)
-        return (title_embeddings, descriptions_embeddings)
+        with open('./embeddings/clip_embeddings.pkl', 'rb') as f:
+            clip_embeddings = pickle.load(f)
+        return (title_embeddings, descriptions_embeddings, clip_embeddings)
 
