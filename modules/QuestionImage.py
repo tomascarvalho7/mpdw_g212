@@ -3,8 +3,6 @@ import requests
 
 model_path = "dandelin/vilt-b32-finetuned-vqa"
 
-
-
 class QuestionImage:
     def __init__(self):
         self.config = AutoConfig.from_pretrained(model_path,  output_hidden_states=True, output_attentions=True)  
@@ -20,5 +18,4 @@ class QuestionImage:
         logits = outputs.logits
         idx = logits.argmax(-1).item()
         answer = self.model.config.id2label[idx]
-        print(question)
-        print(answer)
+        return answer
