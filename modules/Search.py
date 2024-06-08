@@ -27,7 +27,7 @@ class Search:
             ssl_show_warn=False
         )
         # Initialize intent detector
-        self.intent_detector = IntentDetector("../all_intents.json", "NOVA-vision-language/task-intent-detector")
+        self.intent_detector = IntentDetector("./all_intents.json", "NOVA-vision-language/task-intent-detector")
 
         # Initialize slot filling
         self.slot_filling = SlotFilling()
