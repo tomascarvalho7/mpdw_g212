@@ -6,10 +6,10 @@ class SlotFilling:
         self.model = AutoModelForQuestionAnswering.from_pretrained(model_name)
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
     
-    def extract_slot(self, question, context):
+    def extract_slot(self, context, question):
         QA_input = {
-            'question': question,
-            'context': context
+            'context': context,
+            'question': question
         }
         result = self.nlp(QA_input)
         return result['answer']

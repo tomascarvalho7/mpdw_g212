@@ -1,9 +1,7 @@
 from typing import Type, Optional, List, Dict
 
-from example.dialog_factory.dialog_elements import AbstractEvent, AbstractState, LaunchState, LaunchEvent
-from example.dialog_factory.flows import BackboneFlow
-from graph_visualizer.graph_visualizer import print_dot
-
+from ..dialog_factory.dialog_elements import AbstractEvent, AbstractState, LaunchState, LaunchEvent
+from ..dialog_factory.flows import BackboneFlow
 
 class DialogManager:
 

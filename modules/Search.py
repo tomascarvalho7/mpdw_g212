@@ -1,12 +1,16 @@
 import os
 from .EmbeddingUtils import EmbeddingUtils
 from opensearchpy import OpenSearch
+<<<<<<< HEAD
 from .SearchBuilder import SearchBuilder
 from .SlotFilling import SlotFilling
 from .IntentDetector import IntentDetector
 import torch
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import json
+=======
+from modules.SearchBuilder import SearchBuilder
+>>>>>>> new-branch
 
 
 class Search:
@@ -27,6 +31,7 @@ class Search:
             ssl_assert_hostname=False,
             ssl_show_warn=False
         )
+<<<<<<< HEAD
         # Initialize intent detector
         self.intent_detector = IntentDetector("./all_intents.json", "NOVA-vision-language/task-intent-detector")
 
@@ -67,6 +72,8 @@ class Search:
 
 
 ##### daqui para cima ####
+=======
+>>>>>>> new-branch
 
     def SearchTitleAndDescriptionTxt(self, query):
         searchBuilder = SearchBuilder()
@@ -136,6 +143,7 @@ class Search:
 
     def SearchByCaptionEmbeddings(self, query):
         searchBuilder = SearchBuilder()
+<<<<<<< HEAD
         return searchBuilder.SearchByCaptionEmbeddings(query)
     
     def process_query(self, text):
@@ -251,3 +259,6 @@ class Search:
         
     def extract_slot_value(self, question, context):
         return self.slot_filling.extract_slot(question, context)
+=======
+        return searchBuilder.SearchByCaptionEmbeddings(query)
+>>>>>>> new-branch
