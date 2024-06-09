@@ -1,12 +1,13 @@
 import os
-from modules.EmbeddingUtils import EmbeddingUtils
+from .EmbeddingUtils import EmbeddingUtils
 from opensearchpy import OpenSearch
-from modules.SearchBuilder import SearchBuilder
-from modules.SlotFilling import SlotFilling
-from modules.IntentDetector import IntentDetector
-import torch 
-from transformers import AutoTokenizer, AutoModelForSequenceClassification  
+from .SearchBuilder import SearchBuilder
+from .SlotFilling import SlotFilling
+from .IntentDetector import IntentDetector
+import torch
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import json
+
 
 class Search:
     def __init__(self):
@@ -35,6 +36,7 @@ class Search:
         # Initialize state tracking
         self.current_recipe_id = None
         self.current_step = 0
+
 
     def detect_intent(self, text):
         return self.intent_detector.detect_intent(text)
@@ -138,6 +140,9 @@ class Search:
     
     def process_query(self, text):
         intent = self.detect_intent(text)
+        print(f"Detected intent: {intent}")
+
+
         if intent == 'Search recipe':
             self.current_recipe_id = None
             self.current_step = 0

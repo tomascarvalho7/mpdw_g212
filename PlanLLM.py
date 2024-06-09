@@ -60,6 +60,40 @@ def send_to_planllm(conversation, url):
     response = requests.post(url, json=data, timeout=max_timeout)
     return response.text
 
+def process_user_input(user_input, step, conversation_json):
+    intent = search.detect_intent(user_input)
+    response = ""
+    if intent == 'Search recipe':
+        recipe_json = search_Opensearch(user_input)
+        conversation_json = generate_base_json(recipe_json)
+        response = "Recipe found. Ready to start cooking?"
+    elif intent == 'Next':
+        step += 1
+        response = search.get_next_step(conversation_json["task"]["recipe"]["id"])
+    elif intent == 'Yes':
+        response = "Confirmed."
+    elif intent == 'No':
+        response = "Action canceled."
+    elif intent == 'Start task':
+        step = 1
+        response = search.get_step(conversation_json["task"]["recipe"]["id"], step - 1)
+    elif intent == 'Stop':
+        response = "Stopping the task."
+    elif intent == 'Greetings':
+        response = "Hello! How can I assist you today?"
+    elif intent == 'Out of scope':
+        response = "I'm sorry, I cannot assist with that request."
+    else:
+        # Slot Filling example
+        if "recipe" in user_input and "time" in user_input:
+            context = "I want a recipe that takes 30 minutes to prepare."
+            question = "How long does the recipe take to prepare?"
+            slot_value = search.extract_slot_value(question, context)
+            response = f"The recipe takes {slot_value} to prepare."
+        else:
+            response = "I'm not sure how to handle that request."
+    return response, step, conversation_json
+
 
 def main():
     step = 0
@@ -76,11 +110,18 @@ def main():
 
         conversation_json = add_to_json(conversation_json, "user", user_input, step)
 
-        ai_response = send_to_planllm(conversation_json, url)
+        response, step, conversation_json = process_user_input(user_input, step, conversation_json)
 
-        conversation_json = add_to_json(conversation_json, "ai", ai_response, step)
+        conversation_json = add_to_json(conversation_json, "ai", response, step)
 
-        print(ai_response.replace('"', ''))
+        print(response.replace('"', ''))
+
+        ##
+        ##ai_response = send_to_planllm(conversation_json, url)
+
+        ##conversation_json = add_to_json(conversation_json, "ai", ai_response, step)
+
+        ##print(ai_response.replace('"', ''))
 
         step += 1
 
