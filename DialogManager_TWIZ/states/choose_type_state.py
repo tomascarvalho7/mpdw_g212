@@ -1,16 +1,17 @@
-from TWIZ.example.dialog_factory.dialog_elements import AbstractState, AbstractEvent
-from states import StartState
-from events import *
+from typing import Optional, Tuple
+from DialogManager_TWIZ.dialog_factory.dialog_elements import AbstractState, AbstractEvent
+from DialogManager_TWIZ.dialog_factory.flows import BackboneFlow
 
-class ChooseTypeState (AbstractState):
+class ChooseTypeState (AbstractState, BackboneFlow):
     def __init__(self):
         self.data = []
 
-    def event_in(self, event) :
-        print("What type of recipe do you want?")
-        return
+    def event_in(self, event: AbstractEvent, history: list, state_manager: dict) -> Tuple[Optional[AbstractEvent], object]:
+        msg = "What type of recipe do you want?"
+        return None, {"response": msg, "screen": ""}
 
-    def event_out(self, event) :
+    def event_out(self, event: AbstractEvent, history: list, state_manager: dict) -> Optional[AbstractEvent]:
+
         print("Great option!")
         return
     
@@ -18,6 +19,11 @@ class ChooseTypeState (AbstractState):
     # last_state --- [event,...] ---> self_state
     @staticmethod
     def register_transitions_in() -> dict:
+        from DialogManager_TWIZ.states.start_state import StartState
+        from DialogManager_TWIZ.events.out_of_scope_event import OutOfScopeEvent
+        from DialogManager_TWIZ.events.greetings_event import GreetingsEvent
+
         return {
-            StartState: [ChooseTypeState]
+            StartState: [GreetingsEvent],
+            ChooseTypeState: [OutOfScopeEvent]
         }

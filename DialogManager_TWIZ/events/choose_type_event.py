@@ -1,4 +1,4 @@
-from TWIZ.example.dialog_factory.dialog_elements import AbstractEvent
+from DialogManager_TWIZ.dialog_factory.dialog_elements import AbstractEvent
 
 class ChooseType(AbstractEvent):
     id = "ChooseType"

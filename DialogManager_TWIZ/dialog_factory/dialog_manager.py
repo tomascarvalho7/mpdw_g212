@@ -10,7 +10,7 @@ class DialogManager:
         self.states_flow: Dict[str, str] = {state.__name__: self.get_state_flow(state) for state in self.states}
         self.events: List[Type[AbstractEvent]] = AbstractEvent.__subclasses__()
 
-        self.transitions: Dict[(Type[AbstractState], Type[AbstractEvent]), Type[AbstractState]] = {}
+        self.transitions: Dict[(Type[AbstractState], str), Type[AbstractState]] = {}
 
         self.history: List[AbstractState] = history
         self.checkpoint: List[(str, AbstractState)] = [(BackboneFlow.__name__, start_state)]
@@ -25,7 +25,7 @@ class DialogManager:
                             print(
                                 f"Warning: Transitions conflict ({(last_state, event)})")
                         else:
-                            self.transitions[(last_state, event)] = state
+                            self.transitions[(last_state, event.id)] = state
 
             # old_state --- event ---> self_state
             state_transitions = state.register_subflow_transitions_in()
@@ -38,31 +38,32 @@ class DialogManager:
                                 print(
                                     f"Warning: Transitions conflict ({(last_state, event)})")
                             else:
-                                self.transitions[(last_state, event)] = state
+                                self.transitions[(last_state, event.id)] = state
 
         self.print_status()
         # print_dot(self.states)
 
-        self.trigger(LaunchEvent())
-
     def trigger(self, event: AbstractEvent, state_manager: dict = {}) -> dict:
         responder_candidates = []
 
-        while event:
-            print("## CURRENT STATE:", type(self.checkpoint[-1][1]).__name__, "## EVENT:", type(event).__name__)
+        currentEvent = event
+        while currentEvent != None:
+            print("while:", currentEvent)
+            print("## CURRENT STATE:", type(self.checkpoint[-1][1]).__name__, "## EVENT:", currentEvent.id)
 
             for (flow, state) in reversed(self.checkpoint):
                 print("## CANDIDATE", flow, type(state).__name__)
-                if (type(state), type(event)) in self.transitions:
-
+                if (type(state), currentEvent.id) in self.transitions:
                     # Next state returned by previous state or by registered transitions
-                    out_event = state.event_out(event, self.history, state_manager)
-                    event = out_event if out_event else event
+                    out_event = state.event_out(currentEvent, self.history, state_manager)
+                    currentEvent = out_event if out_event else currentEvent
 
                     # Check transition with current state and deal with any received event
-                    next_state = self.transitions[(type(state), type(event))]
+                    next_state = self.transitions[(type(state), currentEvent.id)]
                     current_state = next_state()
-                    event, responders = current_state.event_in(event, self.history, state_manager)
+                    
+                    currentEvent, responders = current_state.event_in(currentEvent, self.history, state_manager)
+                    print("event::::", currentEvent)
                     responder_candidates.append(responders)
                     print("## TRANSITION FOUND", type(state).__name__, "->", type(current_state).__name__)
 
@@ -78,6 +79,7 @@ class DialogManager:
 
                     print("## CHECKPOINT:", [(f, type(s).__name__) for (f, s) in self.checkpoint])
                     self.history.append(current_state)
+                    print("event:break:::", currentEvent)
                     break
 
             if not responder_candidates:
@@ -113,7 +115,7 @@ class DialogManager:
         print()
         print("## TRANSITIONS ### S-E->S #########################")
         for (a, b), c in self.transitions.items():
-            print(a.__name__, "-", b.__name__, " -> ", c.__name__)
+            print(a.__name__, "-", b, " -> ", c.__name__)
         print("###################################################")
         print()
 

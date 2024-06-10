@@ -1,8 +1,7 @@
-from TWIZ.example.dialog_factory.dialog_elements import AbstractState, AbstractEvent
-from states import StartState
-from events import *
+from DialogManager_TWIZ.dialog_factory.dialog_elements import AbstractState
+from DialogManager_TWIZ.dialog_factory.flows import BackboneFlow
 
-class OutOfScopeState (AbstractState):
+class OutOfScopeState (AbstractState, BackboneFlow):
     def __init__(self):
         self.data = []
 
@@ -11,13 +10,4 @@ class OutOfScopeState (AbstractState):
         return
 
     def event_out(self, event) :
-        return
-    
-    # define transitions from other states to this state with events
-    # last_state --- [event,...] ---> self_state
-    @staticmethod
-    def register_transitions_in() -> dict:
-        return {
-            StartState: [OutOfScopeState],
-            OutOfScopeState: [OutOfScopeState]
-        }
+       return

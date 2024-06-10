@@ -19,7 +19,7 @@ class AbstractState(ABC):
         pass
 
     # operations done when entering the state
-    def event_in(self, event: AbstractEvent, history: list, state_manager: dict) -> Tuple[Optional[AbstractEvent], str]:
+    def event_in(self, event: AbstractEvent, history: list, state_manager: dict) -> Tuple[Optional[AbstractEvent], object]:
         pass
 
     # operations done when leaving the state
@@ -44,7 +44,7 @@ class LaunchState(AbstractState):
         return
 
     def event_in(self, event: AbstractEvent, history: list, state_manager: dict) -> Tuple[Optional[AbstractEvent], str]:
-        return
+        return None, ""
 
     def event_out(self, event: AbstractEvent, history: list, state_manager: dict) -> Optional[AbstractEvent]:
         return
@@ -59,4 +59,12 @@ class LaunchState(AbstractState):
 
 
 class LaunchEvent(AbstractEvent):
-    pass
+    id = "LaunchEvent"
+    description = ""
+
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def is_valid(state_manager: dict):
+        return state_manager["intent"] == LaunchEvent.id
