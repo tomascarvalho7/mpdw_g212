@@ -21,12 +21,10 @@ class StartState (AbstractState, BackboneFlow):
         from DialogManager_TWIZ.dialog_factory.dialog_manager import LaunchEvent, LaunchState
         from DialogManager_TWIZ.events.stop_event import StopEvent
         from DialogManager_TWIZ.events.out_of_scope_event import OutOfScopeEvent
-        from DialogManager_TWIZ.states.task_state import TaskState
         from DialogManager_TWIZ.states.display_recipe_state import DisplayRecipeState
     
         return {
             LaunchState: [LaunchEvent],
             StartState: [OutOfScopeEvent],
             DisplayRecipeState: [StopEvent],
-            TaskState: [StopEvent]
         }

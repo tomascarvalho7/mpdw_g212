@@ -57,6 +57,8 @@ def send_to_planllm(conversation, url):
         "top_k": -1,
     }
 
+    pp.pprint(data)
+
     response = requests.post(url, json=data, timeout=max_timeout)
     return response.text
 
@@ -75,7 +77,7 @@ def main():
             break
 
         conversation_json = add_to_json(conversation_json, "user", user_input, step)
-
+        
         ai_response = send_to_planllm(conversation_json, url)
 
         conversation_json = add_to_json(conversation_json, "ai", ai_response, step)

@@ -22,8 +22,10 @@ class ChooseTypeState (AbstractState, BackboneFlow):
         from DialogManager_TWIZ.states.start_state import StartState
         from DialogManager_TWIZ.events.out_of_scope_event import OutOfScopeEvent
         from DialogManager_TWIZ.events.greetings_event import GreetingsEvent
+        from DialogManager_TWIZ.events.stop_event import StopEvent
+        from DialogManager_TWIZ.events.choose_type_event import ChooseType
 
         return {
-            StartState: [GreetingsEvent],
+            StartState: [GreetingsEvent, StopEvent, ChooseType],
             ChooseTypeState: [OutOfScopeEvent]
         }

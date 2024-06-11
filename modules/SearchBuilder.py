@@ -58,6 +58,9 @@ class SearchBuilder:
     def setSourceAsIdAndInstructions(self):
         self.queryBuilder['_source'] = ['doc_id', 'title' ,'instructions']
 
+    def setSourceAsIdAndName(self):
+        self.queryBuilder['_source'] = ['doc_id', 'title']
+
     def setResultLength(self, length):
         self.queryBuilder['size'] = length
 

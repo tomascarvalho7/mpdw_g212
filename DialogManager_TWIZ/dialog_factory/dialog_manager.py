@@ -101,6 +101,9 @@ class DialogManager:
                         return fine_grained_event
                 return event
         raise Exception("No event defined for the detected intent")
+    
+    def get_state(self):
+        return type(self.checkpoint[-1][1]).__name__
 
     def print_status(self):
         print("## STATES #########################################")
