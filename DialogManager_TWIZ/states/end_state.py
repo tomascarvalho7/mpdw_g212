@@ -2,7 +2,7 @@ from typing import Optional, Tuple
 from DialogManager_TWIZ.dialog_factory.dialog_elements import AbstractEvent, AbstractState
 from DialogManager_TWIZ.dialog_factory.flows import BackboneFlow
 
-class StartState (AbstractState, BackboneFlow):
+class EndState (AbstractState, BackboneFlow):
     def __init__(self):
         self.data = []
 
@@ -16,12 +16,11 @@ class StartState (AbstractState, BackboneFlow):
 
     @staticmethod
     def register_transitions_in() -> dict:
-        from DialogManager_TWIZ.dialog_factory.dialog_manager import LaunchEvent, LaunchState
         from DialogManager_TWIZ.events.stop_event import StopEvent
-        from DialogManager_TWIZ.events.out_of_scope_event import OutOfScopeEvent
+        from DialogManager_TWIZ.states.conversation_state import ConversationState
         from DialogManager_TWIZ.states.display_recipe_state import DisplayRecipeState
     
         return {
-            StartState: [StopEvent],
             DisplayRecipeState: [StopEvent],
+            ConversationState: [StopEvent]
         }

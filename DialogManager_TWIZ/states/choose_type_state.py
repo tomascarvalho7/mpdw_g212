@@ -11,7 +11,6 @@ class ChooseTypeState (AbstractState, BackboneFlow):
         return None, {"response": msg, "screen": ""}
 
     def event_out(self, event: AbstractEvent, history: list, state_manager: dict) -> Optional[AbstractEvent]:
-
         print("Great option!")
         return
     

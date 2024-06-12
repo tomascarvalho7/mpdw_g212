@@ -40,7 +40,7 @@ class DialogManager:
                             else:
                                 self.transitions[(last_state, event.id)] = state
 
-        self.print_status()
+        # self.print_status()
         # print_dot(self.states)
 
     def trigger(self, event: AbstractEvent, state_manager: dict = {}) -> dict:
@@ -48,11 +48,10 @@ class DialogManager:
 
         currentEvent = event
         while currentEvent != None:
-            print("while:", currentEvent)
-            print("## CURRENT STATE:", type(self.checkpoint[-1][1]).__name__, "## EVENT:", currentEvent.id)
+            # print("## CURRENT STATE:", type(self.checkpoint[-1][1]).__name__, "## EVENT:", currentEvent.id)
 
             for (flow, state) in reversed(self.checkpoint):
-                print("## CANDIDATE", flow, type(state).__name__)
+                # print("## CANDIDATE", flow, type(state).__name__)
                 if (type(state), currentEvent.id) in self.transitions:
                     # Next state returned by previous state or by registered transitions
                     out_event = state.event_out(currentEvent, self.history, state_manager)
@@ -63,9 +62,9 @@ class DialogManager:
                     current_state = next_state()
                     
                     currentEvent, responders = current_state.event_in(currentEvent, self.history, state_manager)
-                    print("event::::", currentEvent)
+                    # print("event::::", currentEvent)
                     responder_candidates.append(responders)
-                    print("## TRANSITION FOUND", type(state).__name__, "->", type(current_state).__name__)
+                    # print("## TRANSITION FOUND", type(state).__name__, "->", type(current_state).__name__)
 
                     # Update checkpoint stack and history
                     while self.checkpoint[-1][0] != flow:
@@ -77,14 +76,14 @@ class DialogManager:
                     else:
                         self.checkpoint.append((current_flow, current_state))
 
-                    print("## CHECKPOINT:", [(f, type(s).__name__) for (f, s) in self.checkpoint])
+                    # print("## CHECKPOINT:", [(f, type(s).__name__) for (f, s) in self.checkpoint])
                     self.history.append(current_state)
-                    print("event:break:::", currentEvent)
+                    # print("event:break:::", currentEvent)
                     break
 
             if not responder_candidates:
                 # do something, re-prompt?
-                print("## NO TRANSITION FOUND FOR THIS EVENT, RESPONDING WITH FALLBACK")
+                # print("## NO TRANSITION FOUND FOR THIS EVENT, RESPONDING WITH FALLBACK")
                 responder_candidates.append({"response": "I'm sorry, I couldn't quite get you, could you please rephrase?"})
                 break
 
