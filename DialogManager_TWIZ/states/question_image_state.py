@@ -13,8 +13,6 @@ class QuestionImageState (AbstractState, BackboneFlow):
         intent = state_manager["userInput"]
         image = Image.open(requests.get(state_manager["screen"], stream=True).raw)
         answer = module.ask(intent, image)
-        print(intent)
-        print(image)
         
         return None, {"response": "The answer is: " + answer + ". Feel free to ask me more questions."}
 

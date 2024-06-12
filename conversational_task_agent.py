@@ -121,11 +121,9 @@ def run_dialog_manager():
         if (event.id == "Question" and state["screen"] != ""): event = QuestionImageEvent
         currState = dialog_manager.get_state()
 
-        if (isInConversation(event, currState)):
-            state["conversationJSON"] = pllm.add_to_json(state["conversationJSON"], "user", userInput, state["step"])
-
         responseString = "Doobie Bot: "
         response = dialog_manager.trigger(event, state)
+        currState = dialog_manager.get_state()
 
         if (response["screen"] != "" and response["screen"] != None): 
             state["screen"] = response["screen"]

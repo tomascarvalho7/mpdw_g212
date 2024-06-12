@@ -11,6 +11,7 @@ class ConversationState (AbstractState, BackboneFlow):
 
     def event_in(self, event: AbstractEvent, history: list, state_manager: dict) -> Tuple[Optional[AbstractEvent], str]:
         pllm = state_manager["pllm"]
+        state_manager["conversationJSON"] = pllm.add_to_json(state_manager["conversationJSON"], "user", state_manager["userInput"], state_manager["step"])
 
         screen = ""
         if(type(history[history.__len__() - 1]).__name__ == "DisplayRecipeState"):

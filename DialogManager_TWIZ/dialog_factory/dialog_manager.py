@@ -60,6 +60,7 @@ class DialogManager:
                     # Check transition with current state and deal with any received event
                     next_state = self.transitions[(type(state), currentEvent.id)]
                     current_state = next_state()
+
                     if (type(state).__name__ == "QuestionImageState" and currentEvent.id != "QuestionImage"):
                         current_state = self.history[len(self.history) - 2]
                     
