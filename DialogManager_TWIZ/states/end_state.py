@@ -28,7 +28,6 @@ class EndState (AbstractState, BackboneFlow):
     
         return {
             DisplayRecipeState: [StopEvent],
-            StartState: [StopEvent],
             ChooseTypeState: [StopEvent],
             QuestionImageState: [StopEvent]
         }
