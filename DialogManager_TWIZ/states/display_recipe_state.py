@@ -28,7 +28,7 @@ class DisplayRecipeState (AbstractState, BackboneFlow):
             # get recipes
 
         msg += ". Feel free to ask for the next recipe."
-        return None, {"response": msg, "screen": ""}
+        return None, {"response": msg, "screen": "", "planJSON": state_manager["conversationJSON"]}
 
     def event_out(self, event: AbstractEvent, history: list, state_manager: dict) -> Optional[AbstractEvent]:
        return

@@ -9,17 +9,16 @@ class ConversationState (AbstractState, BackboneFlow):
 
     def event_in(self, event: AbstractEvent, history: list, state_manager: dict) -> Tuple[Optional[AbstractEvent], str]:
         pllm = state_manager["pllm"]
-        convo_json = state_manager["conversationJSON"]
 
         if(type(history[history.__len__() - 1]).__name__ == "DisplayRecipeState"):
             fullRecipe = state_manager["search"].SearchSingleTitleAndDescriptionTxtInstructions(state_manager["recipes"][state_manager["recipeCount"]])
-            convo_json = pllm.generate_base_json(fullRecipe, state_manager["conversationJSON"]["dialog"])
+            state_manager["conversationJSON"] = pllm.generate_base_json(fullRecipe, state_manager["conversationJSON"]["dialog"])
 
-        ai_response = pllm.send_to_planllm(convo_json)
+        ai_response = pllm.send_to_planllm(state_manager["conversationJSON"]).replace('"', '')
 
-        response = pllm.add_to_json(convo_json, "ai", ai_response.replace('"', ''), state_manager["step"])
+        state_manager["conversationJSON"] = pllm.add_to_json(state_manager["conversationJSON"], "ai", ai_response, state_manager["step"])
 
-        return None, {"response": str(response), "screen": ""}
+        return None, {"response": ai_response, "screen": "", "planJSON": state_manager["conversationJSON"]}
     
     def event_out(self, event: AbstractEvent, history: list, state_manager: dict) -> Optional[AbstractEvent]:
        return

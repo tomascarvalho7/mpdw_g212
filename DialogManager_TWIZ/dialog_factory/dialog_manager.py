@@ -89,8 +89,9 @@ class DialogManager:
 
         response = ' '.join([r['response'] for r in responder_candidates])
         screen = next((r['screen']for r in responder_candidates if 'screen' in r), None)
+        planJSON = next((r['planJSON']for r in responder_candidates if 'planJSON' in r), None)
 
-        return {'response': response, 'screen': screen}
+        return {'response': response, 'screen': screen, 'planJSON': planJSON}
 
     def event_type(self, state_manager: dict) -> Optional[Type[AbstractEvent]]:
         for event in self.events:

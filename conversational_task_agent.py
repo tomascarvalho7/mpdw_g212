@@ -117,14 +117,12 @@ def run_dialog_manager():
         response = dialog_manager.trigger(event, state)
 
         if (isInConversation(event, currState)):
-            treated_response = response['response'].replace("'", "\"")
-            print(json.loads(treated_response)['dialog'][state["step"]]["system"])
+            print(response['planJSON']['dialog'][state["step"]]["system"])
         else:
             print(response['response'])
 
         if (isInConversation(event, currState)):
-            treated_response = response['response'].replace("'", "\"")
-            state["conversationJSON"] = json.loads(treated_response)
+            state["conversationJSON"] = response['planJSON']
             state["step"] += 1
 
 def isInConversation(event, state):
