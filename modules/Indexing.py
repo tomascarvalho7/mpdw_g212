@@ -56,6 +56,15 @@ class Indexing:
                     "analyzer":"standard",
                     "similarity":"BM25"
                 },
+                "images":{
+                    "type":"nested",
+                    "properties": {
+                        "url": {
+                            "type": "text"
+                        }
+                    },
+                    "enabled": True
+                },
                 "title_embedding":{
                     "type":"knn_vector",
                     "dimension": 768,
@@ -115,6 +124,9 @@ class Indexing:
                             "type": "text",
                             "analyzer": "standard",
                             "similarity": "BM25"
+                        },
+                        "stepImg": {
+                            "type": "text"
                         }
                     },
                     "enabled": True
@@ -168,7 +180,8 @@ class Indexing:
             for instruction in doc_info['instructions']:
                 step = {
                     "stepNumber": instruction['stepNumber'],
-                    "stepText": instruction['stepText']
+                    "stepText": instruction['stepText'],
+                    "stepImg": instruction['stepImages'][0]["url"] if instruction['stepImages'] else ""
                 }
                 instructions.append(step)
             
@@ -184,10 +197,14 @@ class Indexing:
             if doc_info['cuisines'] is not None:
                 tags.extend(doc_info['cuisines'])
 
+            images = []
+            for image in doc_info['images']:
+                images.append({"url": image["url"]})
             obj = {
                 'doc_id': doc_idx,
                 'tags': tags,
                 'title': doc_info['displayName'],
+                'images': images,
                 'title_embedding': self.titles_embeddings[doc_idx],
                 'clip_embeddings': self.clip_embeddings[doc_idx][0],
                 'description': doc_info['description'],

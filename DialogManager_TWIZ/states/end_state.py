@@ -8,6 +8,9 @@ class EndState (AbstractState, BackboneFlow):
 
     def event_in(self, event: AbstractEvent, history: list, state_manager: dict) -> Tuple[Optional[AbstractEvent], str]:
         msg = "Are you sure you want to leave?"
+        confirm = input("(yes/no): ")
+        if confirm == "yes":
+                quit()
 
         return None, {"response": msg, "screen": ""}
     
@@ -17,10 +20,15 @@ class EndState (AbstractState, BackboneFlow):
     @staticmethod
     def register_transitions_in() -> dict:
         from DialogManager_TWIZ.events.stop_event import StopEvent
-        from DialogManager_TWIZ.states.conversation_state import ConversationState
+        from DialogManager_TWIZ.states.start_state import StartState
+        from DialogManager_TWIZ.states.choose_type_state import ChooseTypeState
+        from DialogManager_TWIZ.states.display_recipe_state import DisplayRecipeState
+        from DialogManager_TWIZ.states.question_image_state import QuestionImageState
         from DialogManager_TWIZ.states.display_recipe_state import DisplayRecipeState
     
         return {
             DisplayRecipeState: [StopEvent],
-            ConversationState: [StopEvent]
+            StartState: [StopEvent],
+            ChooseTypeState: [StopEvent],
+            QuestionImageState: [StopEvent]
         }

@@ -6,19 +6,24 @@ import pprint as pp
 class ConversationState (AbstractState, BackboneFlow):
     def __init__(self):
         self.data = []
+        self.recipe = {}
+        
 
     def event_in(self, event: AbstractEvent, history: list, state_manager: dict) -> Tuple[Optional[AbstractEvent], str]:
         pllm = state_manager["pllm"]
 
+        screen = ""
         if(type(history[history.__len__() - 1]).__name__ == "DisplayRecipeState"):
-            fullRecipe = state_manager["search"].SearchSingleTitleAndDescriptionTxtInstructions(state_manager["recipes"][state_manager["recipeCount"]])
+            fullRecipe = state_manager["search"].SearchSingleTitleAndDescriptionTxtInstructions(state_manager["recipes"][state_manager["recipeCount"]]["title"])
+            state_manager["instructions"] = fullRecipe["hits"]["hits"][0]["_source"]['instructions']
             state_manager["conversationJSON"] = pllm.generate_base_json(fullRecipe, state_manager["conversationJSON"]["dialog"])
 
+        screen += state_manager["instructions"][state_manager["step"]]['stepImg']
         ai_response = pllm.send_to_planllm(state_manager["conversationJSON"]).replace('"', '')
 
         state_manager["conversationJSON"] = pllm.add_to_json(state_manager["conversationJSON"], "ai", ai_response, state_manager["step"])
 
-        return None, {"response": ai_response, "screen": "", "planJSON": state_manager["conversationJSON"]}
+        return None, {"response": ai_response, "screen": screen, "planJSON": state_manager["conversationJSON"], "instructions": self.recipe}
     
     def event_out(self, event: AbstractEvent, history: list, state_manager: dict) -> Optional[AbstractEvent]:
        return

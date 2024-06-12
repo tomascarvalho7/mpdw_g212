@@ -79,7 +79,7 @@ class Search:
 
     def SearchTitleEmbeddings(self, query):
         searchBuilder = SearchBuilder()
-        searchBuilder.setSourceAsIdAndName()
+        searchBuilder.setSourceAsHeader()
         searchBuilder.setResultLength(5)
         return searchBuilder.SearchByTitleEmbeddings(query)
 
